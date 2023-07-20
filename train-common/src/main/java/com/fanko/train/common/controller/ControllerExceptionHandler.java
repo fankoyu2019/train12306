@@ -48,7 +48,7 @@ public class ControllerExceptionHandler {
         return commonResp;
     }
     /**
-     * 业务异常统一处理
+     * 校验异常统一处理
      *
      * @param e
      * @return
