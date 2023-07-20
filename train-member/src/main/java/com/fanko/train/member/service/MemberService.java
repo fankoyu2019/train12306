@@ -8,6 +8,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.jwt.JWTUtil;
 import com.fanko.train.common.exception.BusinessException;
 import com.fanko.train.common.exception.BusinessExceptionEnum;
+import com.fanko.train.common.util.JwtUtil;
 import com.fanko.train.common.util.SnowUtil;
 import com.fanko.train.member.domain.Member;
 import com.fanko.train.member.domain.MemberExample;
@@ -88,9 +89,7 @@ public class MemberService {
         }
 
         MemberLoginResp memberLoginResp = BeanUtil.copyProperties(memberDB, MemberLoginResp.class);
-        Map<String, Object> map = BeanUtil.beanToMap(memberLoginResp);
-        String key = "fanko12306";
-        String token = JWTUtil.createToken(map, key.getBytes());
+        String token = JwtUtil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
         memberLoginResp.setToken(token);
         return memberLoginResp;
     }
