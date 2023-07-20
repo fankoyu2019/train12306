@@ -2,6 +2,7 @@ package com.fanko.train.member.controller;
 
 import com.fanko.train.common.resp.CommonResp;
 import com.fanko.train.member.req.MemberRegisterReq;
+import com.fanko.train.member.req.MemberSendCodeReq;
 import com.fanko.train.member.service.MemberService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -15,19 +16,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
     @Resource
     private MemberService memberService;
+
     @GetMapping("/count")
-    public CommonResp<Integer> count(){
+    public CommonResp<Integer> count() {
         int count = memberService.count();
         CommonResp<Integer> commonResp = new CommonResp<>();
         commonResp.setContent(count);
         return commonResp;
     }
+
     @PostMapping("/register")
-    public CommonResp<Long> register(@Valid MemberRegisterReq req){
+    public CommonResp<Long> register(@Valid MemberRegisterReq req) {
         long register = memberService.register(req);
 //        CommonResp<Long> commonResp = new CommonResp<>();
 //        commonResp.setContent(register);
 //        return commonResp;
         return new CommonResp<>(register);
+    }
+
+    @PostMapping("/send-code")
+    public CommonResp<Long> sendCode(@Valid MemberSendCodeReq req) {
+        memberService.sendCode(req);
+        return new CommonResp<>();
     }
 }

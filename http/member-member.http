@@ -7,3 +7,9 @@ Content-Type: application/x-www-form-urlencoded
 mobile=142623
 
 ###
+POST http://localhost:8000/member/member/send-code
+Content-Type: application/x-www-form-urlencoded
+
+mobile=14262321465
+
+###
