@@ -2,7 +2,7 @@
   <a-layout-header class="header">
     <div class="logo"/>
     <div style="float: right; color: white;">您好：{{ member.mobile }} &nbsp;&nbsp;
-      <router-link to="/login" style="color: white;">退出登录</router-link>
+      <router-link to="/login" style="color: white;" @click="logout">退出登录</router-link>
     </div>
     <a-menu
         v-model:selectedKeys="selectedKeys1"
@@ -21,16 +21,21 @@
 <script>
 import {defineComponent, ref} from 'vue';
 import store from "@/store";
+import {notification} from "ant-design-vue";
 
 
 export default defineComponent({
   name: "the-header-view",
   setup() {
     let member = store.state.member;
-
+    const logout = () => {
+      store.commit("setMember",{})
+      notification.warning({description: '退出登录！'})
+    }
     return {
       selectedKeys1: ref(['2']),
-      member
+      member,
+      logout
     };
   },
 });
