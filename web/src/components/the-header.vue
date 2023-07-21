@@ -10,30 +10,44 @@
         mode="horizontal"
         :style="{ lineHeight: '64px' }"
     >
-      <a-menu-item key="1">nav 1</a-menu-item>
-      <a-menu-item key="2">nav 2</a-menu-item>
-      <a-menu-item key="3">nav 3</a-menu-item>
+      <a-menu-item key="/welcome">
+        <router-link to="/welcome">
+          <coffee-outlined/> &nbsp; 欢迎
+        </router-link>
+      </a-menu-item>
+      <a-menu-item key="/passenger">
+        <router-link to="/passenger">
+          <user-outlined/> &nbsp; 乘车人管理
+        </router-link>
+      </a-menu-item>
     </a-menu>
   </a-layout-header>
 </template>
 
 
 <script>
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, watch} from 'vue';
 import store from "@/store";
 import {notification} from "ant-design-vue";
+import router from "@/router";
 
 
 export default defineComponent({
   name: "the-header-view",
   setup() {
     let member = store.state.member;
+    const selectedKeys1 = ref([]);
+    watch(() => router.currentRoute.value.path, (newValue) => {
+      console.log('watch', newValue);
+      selectedKeys1.value = [];
+      selectedKeys1.value.push(newValue);
+    }, {immediate: true});
     const logout = () => {
-      store.commit("setMember",{})
+      store.commit("setMember", {})
       notification.warning({description: '退出登录！'})
     }
     return {
-      selectedKeys1: ref(['2']),
+      selectedKeys1,
       member,
       logout
     };
