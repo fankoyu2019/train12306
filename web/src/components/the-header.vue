@@ -2,7 +2,7 @@
   <a-layout-header class="header">
     <div class="logo"/>
     <div style="float: right; color: white;">您好：{{ member.mobile }} &nbsp;&nbsp;
-      <router-link to="/login">退出登录</router-link>
+      <router-link to="/login" style="color: white;">退出登录</router-link>
     </div>
     <a-menu
         v-model:selectedKeys="selectedKeys1"
