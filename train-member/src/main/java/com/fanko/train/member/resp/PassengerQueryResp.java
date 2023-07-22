@@ -9,6 +9,8 @@ import java.util.Date;
 public class PassengerQueryResp {
 
     @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long memberId;
 
     private String name;
@@ -22,6 +24,14 @@ public class PassengerQueryResp {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getMemberId() {
         return memberId;
@@ -74,7 +84,8 @@ public class PassengerQueryResp {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("PassengerQueryResp{");
-        sb.append("memberId=").append(memberId);
+        sb.append("id=").append(id);
+        sb.append(", memberId=").append(memberId);
         sb.append(", name='").append(name).append('\'');
         sb.append(", idCard='").append(idCard).append('\'');
         sb.append(", type='").append(type).append('\'');
