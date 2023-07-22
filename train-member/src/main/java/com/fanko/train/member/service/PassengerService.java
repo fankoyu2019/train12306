@@ -12,6 +12,7 @@ import com.fanko.train.member.mapper.PassengerMapper;
 import com.fanko.train.member.req.PassengerQueryReq;
 import com.fanko.train.member.req.PassengerSaveReq;
 import com.fanko.train.member.resp.PassengerQueryResp;
+import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ public class PassengerService {
         if (ObjectUtil.isNotNull(req.getMemberId())) {
             criteria.andMemberIdEqualTo(req.getMemberId());
         }
+        PageHelper.startPage(2, 2);
         List<Passenger> passengerList = passengerMapper.selectByExample(passengerExample);
         return BeanUtil.copyToList(passengerList, PassengerQueryResp.class);
     }
