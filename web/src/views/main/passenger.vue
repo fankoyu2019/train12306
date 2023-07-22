@@ -118,7 +118,7 @@ export default defineComponent({
       }))
     };
     const handleTableChange = (pagination) => {
-      console.log("自带参数都有啥:" + pagination);
+      console.log("自带参数都有啥:" + pagination.current + pagination.pageSize);
       handleQuery({
         page: pagination.current,
         size: pagination.pageSize,
