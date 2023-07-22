@@ -22,6 +22,13 @@
           <a @click="onEdit(record)">编辑</a>
         </a-space>
       </template>
+      <template v-else-if="column.dataIndex === 'type'">
+        <span v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key">
+          <span v-if="item.key === record.type">
+            {{item.value}}
+          </span>
+        </span>
+      </template>
     </template>
   </a-table>
   <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="确认" cancel-text="取消">
@@ -34,9 +41,9 @@
       </a-form-item>
       <a-form-item label="旅客类型">
         <a-select v-model:value="passenger.type">
-          <a-select-option value="1">成人</a-select-option>
-          <a-select-option value="2">儿童</a-select-option>
-          <a-select-option value="3">学生</a-select-option>
+          <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.value">
+            {{item.value}}
+          </a-select-option>
         </a-select>
       </a-form-item>
     </a-form>
@@ -49,6 +56,7 @@ import {notification} from "ant-design-vue";
 
 export default defineComponent({
   setup() {
+    const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
     const visible = ref(false);
     const passenger = ref({
       id: undefined,
@@ -91,7 +99,16 @@ export default defineComponent({
     };
     const onEdit = (record) => {
       console.log(record);
+      console.log(PASSENGER_TYPE_ARRAY);
       passenger.value = window.Tool.copy(record);
+      for(let i in PASSENGER_TYPE_ARRAY){
+          if(passenger.value.type === PASSENGER_TYPE_ARRAY[i].key){
+            console.log(passenger.value.type);
+            console.log(PASSENGER_TYPE_ARRAY[i].key);
+            passenger.value.type = PASSENGER_TYPE_ARRAY[i].value;
+            break;
+          }
+      }
       // passenger.value = JSON.parse(JSON.stringify(record));
       visible.value = true;
     };
@@ -104,12 +121,18 @@ export default defineComponent({
             page: pagination.value.current,
             size: pagination.value.pageSize
           });
-        }else {
+        } else {
           notification.error({description: data.message});
         }
       })
     }
     const handleOk = () => {
+      for(let i in PASSENGER_TYPE_ARRAY){
+        if(passenger.value.type === PASSENGER_TYPE_ARRAY[i].value){
+          passenger.value.type = PASSENGER_TYPE_ARRAY[i].key;
+          break;
+        }
+      }
       axios.post("/member/passenger/save", passenger.value).then(response => {
         let data = response.data;
         if (data.success) {
@@ -168,6 +191,7 @@ export default defineComponent({
       });
     })
     return {
+      PASSENGER_TYPE_ARRAY,
       passenger,
       visible,
       passengers,
