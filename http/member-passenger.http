@@ -16,6 +16,12 @@ token: {{token}}
 
 ###
 
+
+DELETE http://localhost:8000/member/passenger/delete/1682665159111348224
+Accept: application/json
+token: {{token}}
+
+###
 POST http://localhost:8000/member/passenger/save
 Content-Type: application/json
 token: {{token}}
