@@ -2,6 +2,7 @@ package com.fanko.train.generator.gen;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.fanko.train.business.enums.TrainTypeEnum;
 import com.fanko.train.member.enums.PassengerTypeEnum;
 
 
@@ -24,6 +25,7 @@ public class EnumGenerator {
         long begin = System.currentTimeMillis();
         try {
             toJson(PassengerTypeEnum.class, bufferObject, bufferArray);
+            toJson(TrainTypeEnum.class, bufferObject, bufferArray);
 
             StringBuffer buffer = bufferObject.append("\r\n").append(bufferArray);
             writeJs(buffer);
