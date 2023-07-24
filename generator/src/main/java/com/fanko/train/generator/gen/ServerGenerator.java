@@ -1,4 +1,4 @@
-package com.fanko.train.generator.server;
+package com.fanko.train.generator.gen;
 
 import com.fanko.train.generator.util.DbUtil;
 import com.fanko.train.generator.util.Field;
