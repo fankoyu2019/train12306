@@ -11,10 +11,7 @@ import org.dom4j.io.SAXReader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ServerGenerator {
     static String serverPath = "train-[module]/src/main/java/com/fanko/train/[module]/";
@@ -62,22 +59,26 @@ public class ServerGenerator {
         // 表中文名
         String tableNameCn = DbUtil.getTableComment(tableName.getText());
         List<Field> fieldList = DbUtil.getColumnByTableName(tableName.getText());
-
+        Set<String> typeSet = getJavaTypes(fieldList);
 
         Map<String, Object> param = new HashMap<>();
         param.put("module", module);
         param.put("Domain", Domain);
         param.put("domain", domain);
         param.put("do_main", do_main);
+        param.put("tableNameCn", tableNameCn);
+        param.put("fieldList", fieldList);
+        param.put("typeSet", typeSet);
         System.out.println("组装参数：" + param);
 
-        gen(Domain, param,"service");
-        gen(Domain, param,"controller");
+//        gen(Domain, param,"service", "service");
+//        gen(Domain, param,"controller", "controller");
+        gen(Domain, param,"req", "saveReq");
     }
 
-    private static void gen(String Domain, Map<String, Object> param, String target) throws IOException, TemplateException {
+    private static void gen(String Domain, Map<String, Object> param,String packageName, String target) throws IOException, TemplateException {
         FreemarkerUtil.initConfig(target + ".ftl");
-        String toPath = serverPath + target + "/";
+        String toPath = serverPath + packageName + "/";
         new File(toPath).mkdirs();
         String Target = target.substring(0, 1).toUpperCase() + target.substring(1);
         String fileName = toPath + Domain + Target + ".java";
@@ -94,5 +95,16 @@ public class ServerGenerator {
         Node node = document.selectSingleNode("//pom:configurationFile");
         System.out.println(node.getText());
         return node.getText();
+    }
+    /**
+     * 获取所有的Java类型，使用Set去重
+     */
+    private static Set<String> getJavaTypes(List<Field> fieldList) {
+        Set<String> set = new HashSet<>();
+        for (int i = 0; i < fieldList.size(); i++) {
+            Field field = fieldList.get(i);
+            set.add(field.getJavaType());
+        }
+        return set;
     }
 }
