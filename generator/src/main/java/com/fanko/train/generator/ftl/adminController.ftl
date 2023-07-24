@@ -1,4 +1,4 @@
-package com.fanko.train.${module}.controller;
+package com.fanko.train.${module}.controller.admin;
 
 import com.fanko.train.common.context.LoginMemberContext;
 import com.fanko.train.common.resp.CommonResp;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/${do_main}")
-public class ${Domain}Controller {
+@RequestMapping("/admin/${do_main}")
+public class ${Domain}AdminController {
     @Resource
     private ${Domain}Service ${domain}Service;
 
