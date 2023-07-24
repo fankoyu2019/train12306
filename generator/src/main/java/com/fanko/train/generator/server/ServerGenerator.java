@@ -14,8 +14,11 @@ import java.io.IOException;
 import java.util.*;
 
 public class ServerGenerator {
+    static boolean readOnly = false;
+    static String vuePath = "web/src/views/main/";
     static String serverPath = "train-[module]/src/main/java/com/fanko/train/[module]/";
     static String pomPath = "generator/pom.xml";
+
     static {
         new File(serverPath).mkdirs();
     }
@@ -69,21 +72,32 @@ public class ServerGenerator {
         param.put("tableNameCn", tableNameCn);
         param.put("fieldList", fieldList);
         param.put("typeSet", typeSet);
+        param.put("readOnly", readOnly);
         System.out.println("组装参数：" + param);
 
 //        gen(Domain, param,"service", "service");
 //        gen(Domain, param,"controller", "controller");
 //        gen(Domain, param,"req", "saveReq");
-        gen(Domain, param,"req", "queryReq");
-        gen(Domain, param,"resp", "queryResp");
+//        gen(Domain, param,"req", "queryReq");
+//        gen(Domain, param,"resp", "queryResp");
+        genVue(do_main, param);
     }
 
-    private static void gen(String Domain, Map<String, Object> param,String packageName, String target) throws IOException, TemplateException {
+
+    private static void gen(String Domain, Map<String, Object> param, String packageName, String target) throws IOException, TemplateException {
         FreemarkerUtil.initConfig(target + ".ftl");
         String toPath = serverPath + packageName + "/";
         new File(toPath).mkdirs();
         String Target = target.substring(0, 1).toUpperCase() + target.substring(1);
         String fileName = toPath + Domain + Target + ".java";
+        System.out.println("开始生成：" + fileName);
+        FreemarkerUtil.generator(fileName, param);
+    }
+
+    private static void genVue(String do_main, Map<String, Object> param) throws IOException, TemplateException {
+        FreemarkerUtil.initConfig("vue.ftl");
+        new File(vuePath).mkdirs();
+        String fileName = vuePath + do_main + ".vue";
         System.out.println("开始生成：" + fileName);
         FreemarkerUtil.generator(fileName, param);
     }
@@ -98,6 +112,7 @@ public class ServerGenerator {
         System.out.println(node.getText());
         return node.getText();
     }
+
     /**
      * 获取所有的Java类型，使用Set去重
      */
