@@ -1,12 +1,12 @@
-package com.fanko.train.member.controller;
+package com.fanko.train.${module}.controller;
 
 import com.fanko.train.common.context.LoginMemberContext;
 import com.fanko.train.common.resp.CommonResp;
 import com.fanko.train.common.resp.PageResp;
-import com.fanko.train.member.req.${Domain}QueryReq;
-import com.fanko.train.member.req.${Domain}SaveReq;
-import com.fanko.train.member.resp.${Domain}QueryResp;
-import com.fanko.train.member.service.${Domain}Service;
+import com.fanko.train.${module}.req.${Domain}QueryReq;
+import com.fanko.train.${module}.req.${Domain}SaveReq;
+import com.fanko.train.${module}.resp.${Domain}QueryResp;
+import com.fanko.train.${module}.service.${Domain}Service;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;

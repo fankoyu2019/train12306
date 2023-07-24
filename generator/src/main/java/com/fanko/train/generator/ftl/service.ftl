@@ -1,4 +1,4 @@
-package com.fanko.train.member.service;
+package com.fanko.train.${module}.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
@@ -7,12 +7,12 @@ import cn.hutool.core.util.StrUtil;
 import com.fanko.train.common.context.LoginMemberContext;
 import com.fanko.train.common.resp.PageResp;
 import com.fanko.train.common.util.SnowUtil;
-import com.fanko.train.member.domain.${Domain};
-import com.fanko.train.member.domain.${Domain}Example;
-import com.fanko.train.member.mapper.${Domain}Mapper;
-import com.fanko.train.member.req.${Domain}QueryReq;
-import com.fanko.train.member.req.${Domain}SaveReq;
-import com.fanko.train.member.resp.${Domain}QueryResp;
+import com.fanko.train.${module}.domain.${Domain};
+import com.fanko.train.${module}.domain.${Domain}Example;
+import com.fanko.train.${module}.mapper.${Domain}Mapper;
+import com.fanko.train.${module}.req.${Domain}QueryReq;
+import com.fanko.train.${module}.req.${Domain}SaveReq;
+import com.fanko.train.${module}.resp.${Domain}QueryResp;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
