@@ -1,6 +1,5 @@
 package com.fanko.train.business.controller.admin;
 
-import com.fanko.train.common.context.LoginMemberContext;
 import com.fanko.train.common.resp.CommonResp;
 import com.fanko.train.common.resp.PageResp;
 import com.fanko.train.business.req.StationQueryReq;
@@ -35,5 +34,9 @@ public class StationAdminController {
         stationService.delete(id);
         return new CommonResp<>();
     }
-
+    @GetMapping("/query-all")
+    public CommonResp<List<StationQueryResp>> queryList() {
+        List<StationQueryResp> list = stationService.queryAll();
+        return new CommonResp<>(list);
+    }
 }

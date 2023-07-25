@@ -31,12 +31,12 @@ public class TrainService {
     public void save(TrainSaveReq req) {
         DateTime now = DateTime.now();
         Train train = BeanUtil.copyProperties(req, Train.class);
-        if (ObjectUtil.isNull(train.getId())){
+        if (ObjectUtil.isNull(train.getId())) {
             train.setId(SnowUtil.getSnowflakeNextId());
             train.setCreateTime(now);
             train.setUpdateTime(now);
             trainMapper.insert(train);
-        }else {
+        } else {
             train.setUpdateTime(now);
             trainMapper.updateByPrimaryKey(train);
         }
@@ -68,7 +68,8 @@ public class TrainService {
     public void delete(Long id) {
         trainMapper.deleteByPrimaryKey(id);
     }
-    public List<TrainQueryResp> queryAll( ) {
+
+    public List<TrainQueryResp> queryAll() {
         TrainExample trainExample = new TrainExample();
         trainExample.setOrderByClause("code asc");
         List<Train> trainList = trainMapper.selectByExample(trainExample);
