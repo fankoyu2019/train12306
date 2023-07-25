@@ -3,7 +3,7 @@
             show-search allow-clear
             :filter-option="filterNameOption"
             @change="onChange" placeholder="请选择车站"
-    :style="'width:' + width_"
+    :style="'width:' + localWidth"
   >
     <a-select-option v-for="item in stations" :key="item.name" :value="item.name"
                      :label="item.name +item.namePinyin + item.namePy">
@@ -22,9 +22,9 @@ export default defineComponent({
   setup(props, {emit}) {
     const name = ref();
     const stations = ref([]);
-    const width_ = ref(props.width);
+    const localWidth = ref(props.width);
     if (Tool.isEmpty(props.width)) {
-      width_.value = "100%";
+      localWidth.value = "100%";
     }
     // 利用watch，动态获取父组件的值，如果放在onMounted或其他方法里，则只有第一次有效
     watch(() => props.modelValue, () => {
@@ -70,7 +70,7 @@ export default defineComponent({
     return {
       name,
       stations,
-      width_,
+      localWidth,
       filterNameOption,
       onChange
     }

@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class ServerGenerator {
-    static boolean readOnly = false;
+    static boolean readOnly = true;
     static String vuePath = "admin/src/views/main/";
     static String serverPath = "train-[module]/src/main/java/com/fanko/train/[module]/";
     static String pomPath = "generator/pom.xml";
@@ -74,12 +74,12 @@ public class ServerGenerator {
         param.put("typeSet", typeSet);
         param.put("readOnly", readOnly);
         System.out.println("组装参数：" + param);
-
-        gen(Domain, param,"service", "service");
-        gen(Domain, param,"controller/admin", "adminController");
-        gen(Domain, param,"req", "saveReq");
-        gen(Domain, param,"req", "queryReq");
-        gen(Domain, param,"resp", "queryResp");
+//
+//        gen(Domain, param,"service", "service");
+//        gen(Domain, param,"controller/admin", "adminController");
+//        gen(Domain, param,"req", "saveReq");
+//        gen(Domain, param,"req", "queryReq");
+//        gen(Domain, param,"resp", "queryResp");
         genVue(do_main, param);
     }
 

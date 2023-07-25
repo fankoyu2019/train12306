@@ -1,10 +1,11 @@
 package com.fanko.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
-import com.fanko.train.business.domain.Train;
-import com.fanko.train.business.resp.TrainQueryResp;
+import com.fanko.train.common.exception.BusinessException;
+import com.fanko.train.common.exception.BusinessExceptionEnum;
 import com.fanko.train.common.resp.PageResp;
 import com.fanko.train.common.util.SnowUtil;
 import com.fanko.train.business.domain.Station;
@@ -32,12 +33,21 @@ public class StationService {
     public void save(StationSaveReq req) {
         DateTime now = DateTime.now();
         Station station = BeanUtil.copyProperties(req, Station.class);
-        if (ObjectUtil.isNull(station.getId())){
+        if (ObjectUtil.isNull(station.getId())) {
+
+            // 保存之前，先校验唯一性是否存在
+            StationExample stationExample = new StationExample();
+            stationExample.createCriteria().andNameEqualTo(req.getName());
+            List<Station> list = stationMapper.selectByExample(stationExample);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_STATION_NAME_UNIQUE_ERROR);
+            }
+
             station.setId(SnowUtil.getSnowflakeNextId());
             station.setCreateTime(now);
             station.setUpdateTime(now);
             stationMapper.insert(station);
-        }else {
+        } else {
             station.setUpdateTime(now);
             stationMapper.updateByPrimaryKey(station);
         }

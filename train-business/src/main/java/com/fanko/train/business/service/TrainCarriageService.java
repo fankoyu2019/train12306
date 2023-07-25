@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fanko.train.business.domain.TrainSeatExample;
+import com.fanko.train.business.enums.SeatColEnum;
 import com.fanko.train.common.resp.PageResp;
 import com.fanko.train.common.util.SnowUtil;
 import com.fanko.train.business.domain.TrainCarriage;
@@ -31,6 +32,12 @@ public class TrainCarriageService {
 
     public void save(TrainCarriageSaveReq req) {
         DateTime now = DateTime.now();
+
+        // 自动计算出列数和总座位数
+        List<SeatColEnum> seatColEnumList = SeatColEnum.getColsByType(req.getSeatType());
+        req.setColCount(seatColEnumList.size());
+        req.setSeatCount(req.getColCount()*req.getRowCount());
+
         TrainCarriage trainCarriage = BeanUtil.copyProperties(req, TrainCarriage.class);
         if (ObjectUtil.isNull(trainCarriage.getId())) {
             trainCarriage.setId(SnowUtil.getSnowflakeNextId());
