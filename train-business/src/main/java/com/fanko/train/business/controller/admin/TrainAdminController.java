@@ -1,5 +1,6 @@
 package com.fanko.train.business.controller.admin;
 
+import com.fanko.train.business.service.TrainSeatService;
 import com.fanko.train.common.context.LoginMemberContext;
 import com.fanko.train.common.resp.CommonResp;
 import com.fanko.train.common.resp.PageResp;
@@ -18,6 +19,10 @@ import java.util.List;
 public class TrainAdminController {
     @Resource
     private TrainService trainService;
+    @Resource
+    private TrainSeatService trainSeatService;
+
+
 
     @PostMapping("/save")
     public CommonResp<Object> save(@Valid @RequestBody TrainSaveReq req) {
@@ -39,5 +44,10 @@ public class TrainAdminController {
     public CommonResp<List<TrainQueryResp>> queryList() {
         List<TrainQueryResp> list = trainService.queryAll();
         return new CommonResp<>(list);
+    }
+    @GetMapping("/gen-seat/{trainCode}")
+    public CommonResp<Object> genSeat(@PathVariable String trainCode) {
+        trainSeatService.genTrainSeat(trainCode);
+        return new CommonResp<>();
     }
 }
