@@ -1,15 +1,16 @@
 package com.fanko.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.fanko.train.business.domain.TrainSeatExample;
+import com.fanko.train.business.domain.*;
 import com.fanko.train.business.enums.SeatColEnum;
+import com.fanko.train.common.exception.BusinessException;
+import com.fanko.train.common.exception.BusinessExceptionEnum;
 import com.fanko.train.common.resp.PageResp;
 import com.fanko.train.common.util.SnowUtil;
-import com.fanko.train.business.domain.TrainCarriage;
-import com.fanko.train.business.domain.TrainCarriageExample;
 import com.fanko.train.business.mapper.TrainCarriageMapper;
 import com.fanko.train.business.req.TrainCarriageQueryReq;
 import com.fanko.train.business.req.TrainCarriageSaveReq;
@@ -40,6 +41,12 @@ public class TrainCarriageService {
 
         TrainCarriage trainCarriage = BeanUtil.copyProperties(req, TrainCarriage.class);
         if (ObjectUtil.isNull(trainCarriage.getId())) {
+            // 保存之前，先校验唯一性是否存在
+            TrainCarriage trainCarriageDB = selectByUnique(req.getTrainCode(), req.getIndex());
+            if (ObjectUtil.isNotEmpty(trainCarriageDB)) {
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_CARRIAGE_INDEX_UNIQUE_ERROR);
+            }
+
             trainCarriage.setId(SnowUtil.getSnowflakeNextId());
             trainCarriage.setCreateTime(now);
             trainCarriage.setUpdateTime(now);
@@ -48,6 +55,14 @@ public class TrainCarriageService {
             trainCarriage.setUpdateTime(now);
             trainCarriageMapper.updateByPrimaryKey(trainCarriage);
         }
+    }
+    private TrainCarriage selectByUnique(String trainCode, Integer index) {
+        TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
+        trainCarriageExample.createCriteria().andTrainCodeEqualTo(trainCode).andIndexEqualTo(index);
+        List<TrainCarriage> list = trainCarriageMapper.selectByExample(trainCarriageExample);
+        if (CollUtil.isNotEmpty(list)) {
+            return list.get(0);
+        }else return null;
     }
 
     public PageResp<TrainCarriageQueryResp> queryList(TrainCarriageQueryReq req) {
