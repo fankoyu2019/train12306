@@ -35,5 +35,9 @@ public class TrainAdminController {
         trainService.delete(id);
         return new CommonResp<>();
     }
-
+    @GetMapping("/query-all")
+    public CommonResp<List<TrainQueryResp>> queryList() {
+        List<TrainQueryResp> list = trainService.queryAll();
+        return new CommonResp<>(list);
+    }
 }
