@@ -4,12 +4,10 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.fanko.train.business.domain.TrainCarriage;
+import com.fanko.train.business.domain.*;
 import com.fanko.train.business.enums.SeatColEnum;
 import com.fanko.train.common.resp.PageResp;
 import com.fanko.train.common.util.SnowUtil;
-import com.fanko.train.business.domain.TrainSeat;
-import com.fanko.train.business.domain.TrainSeatExample;
 import com.fanko.train.business.mapper.TrainSeatMapper;
 import com.fanko.train.business.req.TrainSeatQueryReq;
 import com.fanko.train.business.req.TrainSeatSaveReq;
@@ -114,5 +112,12 @@ public class TrainSeatService {
                 }
             }
         }
+    }
+
+    public List<TrainSeat> selectByTrainCode(String trainCode) {
+        TrainSeatExample trainSeatExample = new TrainSeatExample();
+        trainSeatExample.setOrderByClause("`id` asc");
+        trainSeatExample.createCriteria().andTrainCodeEqualTo(trainCode);
+        return trainSeatMapper.selectByExample(trainSeatExample);
     }
 }
