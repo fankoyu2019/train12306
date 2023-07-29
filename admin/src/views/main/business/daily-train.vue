@@ -274,7 +274,7 @@ export default defineComponent({
         genDailyLoading.value = false;
         let data = response.data;
         if(data.success){
-          notification.success({description: "保存成功！"});
+          notification.success({description: "生成成功！"});
           genDailyVisible.value = false;
           handleQuery({
             page: pagination.value.current,
