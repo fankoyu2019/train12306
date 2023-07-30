@@ -1,11 +1,11 @@
 <template>
   <p>
     <a-space>
-      <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择日期" />
+      <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择日期"/>
       <station-select-view v-model="params.start" width="200px"></station-select-view>
       <station-select-view v-model="params.end" width="200px"></station-select-view>
       <a-button type="primary" @click="handleQuery()">查找</a-button>
-      
+
     </a-space>
   </p>
   <a-table :dataSource="dailyTrainTickets"
@@ -15,17 +15,18 @@
            :loading="loading">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
+        <a-button type="primary" @click="toOrder(record)">预订</a-button>
       </template>
       <template v-if="column.dataIndex === 'station'">
-        {{record.start}} <br/>
-        {{record.end}}
+        {{ record.start }} <br/>
+        {{ record.end }}
       </template>
       <template v-if="column.dataIndex === 'time'">
-        {{record.startTime}} <br/>
-        {{record.endTime}}
+        {{ record.startTime }} <br/>
+        {{ record.endTime }}
       </template>
       <template v-if="column.dataIndex === 'duration'">
-        {{calDuration(record.startTime, record.endTime)}} <br/>
+        {{ calDuration(record.startTime, record.endTime) }} <br/>
         <div v-if="record.startTime.replaceAll(':','') >= record.endTime.replaceAll(':','') ">
           次日到达
         </div>
@@ -35,8 +36,8 @@
       </template>
       <template v-if="column.dataIndex === 'ydz'">
         <div v-if="record.ydz >= 0">
-          {{record.ydz}}<br/>
-          {{record.ydzPrice}}￥
+          {{ record.ydz }}<br/>
+          {{ record.ydzPrice }}￥
         </div>
         <div v-else>
           --
@@ -44,8 +45,8 @@
       </template>
       <template v-if="column.dataIndex === 'edz'">
         <div v-if="record.edz >= 0">
-          {{record.edz}}<br/>
-          {{record.edzPrice}}￥
+          {{ record.edz }}<br/>
+          {{ record.edzPrice }}￥
         </div>
         <div v-else>
           --
@@ -53,8 +54,8 @@
       </template>
       <template v-if="column.dataIndex === 'rw'">
         <div v-if="record.rw >= 0">
-          {{record.rw}}<br/>
-          {{record.rwPrice}}￥
+          {{ record.rw }}<br/>
+          {{ record.rwPrice }}￥
         </div>
         <div v-else>
           --
@@ -62,8 +63,8 @@
       </template>
       <template v-if="column.dataIndex === 'yw'">
         <div v-if="record.yw >= 0">
-          {{record.yw}}<br/>
-          {{record.ywPrice}}￥
+          {{ record.yw }}<br/>
+          {{ record.ywPrice }}￥
         </div>
         <div v-else>
           --
@@ -75,11 +76,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted } from 'vue';
+import {defineComponent, ref, onMounted} from 'vue';
 import {notification} from "ant-design-vue";
 import axios from "axios";
 import StationSelectView from "@/components/station-select.vue";
 import dayjs from "dayjs";
+import router from "@/router";
 
 export default defineComponent({
   name: "ticket-view",
@@ -118,62 +120,66 @@ export default defineComponent({
     });
     let loading = ref(false);
     let params = ref({
-      trainCode:null,
-      date:null,
-      start:null,
-      end:null
+      trainCode: null,
+      date: null,
+      start: null,
+      end: null
     });
     const columns = [
-    {
-      title: '车次编号',
-      dataIndex: 'trainCode',
-      key: 'trainCode',
-    },
-    {
-      title: '车站',
-      dataIndex: 'station',
-    },
-    {
-      title: '时间',
-      dataIndex: 'time',
-    },
-    {
-      title: '历时',
-      dataIndex: 'duration',
-    },
-    {
-      title: '一等座',
-      dataIndex: 'ydz',
-      key: 'ydz',
-    },
-    {
-      title: '二等座',
-      dataIndex: 'edz',
-      key: 'edz',
-    },
-    {
-      title: '软卧',
-      dataIndex: 'rw',
-      key: 'rw',
-    },
-    {
-      title: '硬卧',
-      dataIndex: 'yw',
-      key: 'yw',
-    },
+      {
+        title: '车次编号',
+        dataIndex: 'trainCode',
+        key: 'trainCode',
+      },
+      {
+        title: '车站',
+        dataIndex: 'station',
+      },
+      {
+        title: '时间',
+        dataIndex: 'time',
+      },
+      {
+        title: '历时',
+        dataIndex: 'duration',
+      },
+      {
+        title: '一等座',
+        dataIndex: 'ydz',
+        key: 'ydz',
+      },
+      {
+        title: '二等座',
+        dataIndex: 'edz',
+        key: 'edz',
+      },
+      {
+        title: '软卧',
+        dataIndex: 'rw',
+        key: 'rw',
+      },
+      {
+        title: '硬卧',
+        dataIndex: 'yw',
+        key: 'yw',
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+      },
     ];
 
 
     const handleQuery = (param) => {
-      if (Tool.isEmpty(params.value.date)){
+      if (Tool.isEmpty(params.value.date)) {
         notification.error({description: "请输入日期"});
         return;
       }
-      if (Tool.isEmpty(params.value.start)){
+      if (Tool.isEmpty(params.value.start)) {
         notification.error({description: "请输入出发地"});
         return;
       }
-      if (Tool.isEmpty(params.value.end)){
+      if (Tool.isEmpty(params.value.end)) {
         notification.error({description: "请输入目的地"});
         return;
       }
@@ -184,6 +190,11 @@ export default defineComponent({
           size: pagination.value.pageSize
         };
       }
+
+      // 保存查询参数
+      SessionStorage.set(SESSION_TICKET_PARAMS, params.value);
+
+
       loading.value = true;
       axios.get("/business/daily-train-ticket/query-list", {
         params: {
@@ -222,12 +233,20 @@ export default defineComponent({
       return dayjs('00:00:00', 'HH:mm:ss').second(diff).format('HH:mm:ss');
 
     };
+    const toOrder = (record) =>{
+      dailyTrainTicket.value = Tool.copy(record);
+      SessionStorage.set(SESSION_ORDER,dailyTrainTicket.value);
+      router.push("/order");
+    };
 
     onMounted(() => {
-      // handleQuery({
-      //   page: 1,
-      //   size: pagination.value.pageSize
-      // });
+      params.value = SessionStorage.get(SESSION_TICKET_PARAMS) || {};
+      if (Tool.isNotEmpty(params.value)){
+        handleQuery({
+          page: 1,
+          size: pagination.value.pageSize
+        });
+      }
     });
 
     return {
@@ -240,7 +259,8 @@ export default defineComponent({
       handleQuery,
       loading,
       params,
-      calDuration
+      calDuration,
+      toOrder
     };
   },
 });
