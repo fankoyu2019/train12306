@@ -14,11 +14,14 @@ const routes = [
             loginRequire: true
         },
         children: [{
-            path: '/welcome',
+            path: 'welcome',
             component: () => import('../views/main/welcome.vue'),
         },{
-            path: '/passenger',
+            path: 'passenger',
             component: () => import('../views/main/passenger.vue'),
+        },{
+            path: 'ticket',
+            component: () => import('../views/main/ticket.vue'),
         }]
     },
     {
