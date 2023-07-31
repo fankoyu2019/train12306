@@ -2,7 +2,7 @@
   <a-layout-sider width="200" style="background: #fff">
     <a-menu
         v-model:selectedKeys="selectedKeys1"
-        mode="inline" :open-keys="['batch','base', 'business']"
+        mode="inline" :open-keys="['batch','base', 'business', 'member']"
         :style="{ height: '100%', borderRight: 0 }"
     >
       <a-menu-item key="/welcome">
@@ -15,6 +15,19 @@
           <user-outlined/> &nbsp; 关于
         </router-link>
       </a-menu-item>
+      <a-sub-menu key="member">
+        <template #title>
+          <span>
+            <UnorderedListOutlined/>
+            会员管理
+          </span>
+        </template>
+          <a-menu-item key="/member/ticket">
+            <router-link to="/member/ticket">
+              <MenuUnfoldOutlined/> &nbsp; 会员车票
+            </router-link>
+          </a-menu-item>
+      </a-sub-menu>
       <a-sub-menu key="batch">
         <template #title>
           <span>
@@ -75,7 +88,7 @@
             <user-outlined/> &nbsp; 订单信息
           </router-link>
         </a-menu-item>
-          <a-menu-item key="/business/daily-train-ticket">
+        <a-menu-item key="/business/daily-train-ticket">
           <router-link to="/business/daily-train-ticket">
             <user-outlined/> &nbsp; 余票信息
           </router-link>
