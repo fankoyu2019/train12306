@@ -172,18 +172,14 @@ public class ConfirmOrderService {
             }
         }
 
-        LOG.info("最终选座:{}",finalSeatList);
+        LOG.info("最终选座:{}", finalSeatList);
 
-        afterConfirmOrderService.afterDoConfirm(finalSeatList);
+        afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList);
         // 选中座位后事务处理：
-            // 座位表修改售卖情况sell；
-            // 余票详情表修改余票；
-            // 为会员增加购票记录
-            // 更新确认订单为成功
-
-
-
-
+        // 座位表修改售卖情况sell；
+        // 余票详情表修改余票；
+        // 为会员增加购票记录
+        // 更新确认订单为成功
 
 
     }
@@ -212,14 +208,14 @@ public class ConfirmOrderService {
                 Integer seatIndex = dailyTrainSeat.getCarriageSeatIndex();
                 // 判断当前座位未被选中过
                 boolean alreadyChooseFlag = false;
-                for(DailyTrainSeat finalSeat:finalSeatList){
-                    if (finalSeat.getId().equals(dailyTrainSeat.getId())){
-                        LOG.info("座位{}被选中过，不能重复选中，继续判断下一个座位",seatIndex);
+                for (DailyTrainSeat finalSeat : finalSeatList) {
+                    if (finalSeat.getId().equals(dailyTrainSeat.getId())) {
+                        LOG.info("座位{}被选中过，不能重复选中，继续判断下一个座位", seatIndex);
                         alreadyChooseFlag = true;
                         break;
                     }
                 }
-                if (alreadyChooseFlag){
+                if (alreadyChooseFlag) {
                     continue;
                 }
 
