@@ -13,9 +13,11 @@ public class TestController {
     private static final Logger LOG = LoggerFactory.getLogger(TestController.class);
     @Resource
     BusinessFeign businessFeign;
+
     @GetMapping("/hello")
-    public String hello(){
+    public String hello() {
         String businesshello = businessFeign.hello();
         LOG.info(businesshello);
-        return "Hello World! Batch!";}
+        return "Hello World! Batch!" + businesshello;
+    }
 }
