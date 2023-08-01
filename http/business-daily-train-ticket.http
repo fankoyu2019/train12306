@@ -1,0 +1,3 @@
+GET http://localhost:8000/business/admin/daily-train-ticket/query-list?page=2&size=5&trainCode=G1&start=大连&end=济南
+Accept: application/json
+###
