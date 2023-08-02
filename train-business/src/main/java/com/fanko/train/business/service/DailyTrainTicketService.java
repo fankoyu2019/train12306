@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class DailyTrainTicketService {
@@ -64,6 +65,13 @@ public class DailyTrainTicketService {
 
     @Cacheable(value = "DailyTrainTicketService.queryList")
     public PageResp<DailyTrainTicketQueryResp> queryList(DailyTrainTicketQueryReq req) {
+//        常见缓存过期策略
+//        TTL 超时时间
+//        LRU 最近最少使用
+//        LFU 最近最不经常使用
+//        FIFO 先进先出
+//        Random 随机淘汰
+
 //        去缓存取数据
 //                if(有数据){ null  []
 //                    return ;
