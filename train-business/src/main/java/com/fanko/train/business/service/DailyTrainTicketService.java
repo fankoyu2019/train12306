@@ -64,6 +64,8 @@ public class DailyTrainTicketService {
 
     @Cacheable(value = "DailyTrainTicketService.queryList")
     public PageResp<DailyTrainTicketQueryResp> queryList(DailyTrainTicketQueryReq req) {
+
+        // 可以增加抢锁动作
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         dailyTrainTicketExample.setOrderByClause("id desc");
         DailyTrainTicketExample.Criteria criteria = dailyTrainTicketExample.createCriteria();
