@@ -79,6 +79,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!--至少是3.18.0版本，才支持SpringBoot3-->
+            <!--3.20.0 打包报错-->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>3.21.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
