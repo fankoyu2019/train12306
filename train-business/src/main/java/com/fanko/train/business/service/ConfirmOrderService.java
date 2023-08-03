@@ -25,6 +25,7 @@ import com.fanko.train.business.resp.ConfirmOrderQueryResp;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
+import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -111,9 +112,22 @@ public class ConfirmOrderService {
 //            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_LOCK_FAIL);
 //        }
         RLock lock = null;
+        /*
+            A B C D E
+            1: A B C
+            2: D E
+            2: D E
+        * */
+
+
         try {
             // 使用redisson, 自带看门狗
             lock = redissonClient.getLock(lockKey);
+//            lock1 = redissonClient1.getLock(lockKey);
+//            lock2 = redissonClient2.getLock(lockKey);
+//            RedissonRedLock redissonRedLock = new RedissonRedLock(lock1, lock2, lock;....)
+//            boolean tryLock = redissonRedLock.tryLock(0, TimeUnit.SECONDS);
+
             /*
                 waitTime - 等待获取锁时间（最大尝试获取锁时间），超时返回false
                 ( leaseTime ) - lease time 锁时长，即n 时间单位 后自动释放锁
@@ -231,6 +245,8 @@ public class ConfirmOrderService {
             LOG.error("购票异常", e);
         } finally {
             LOG.info("购票流程结束，释放锁!");
+            // try finally 不能包含加锁的那段代码
+//            redisTemplate.delete(lockKey);
             if (null != lock && lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }

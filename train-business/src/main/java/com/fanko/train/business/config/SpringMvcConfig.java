@@ -19,9 +19,11 @@ public class SpringMvcConfig implements WebMvcConfigurer {
    public void addInterceptors(InterceptorRegistry registry) {
        registry.addInterceptor(logInterceptor)
                .addPathPatterns("/**");
+
+       // 路径不要包括context-path
        registry.addInterceptor(memberInterceptor)
                .addPathPatterns("/**")
-               .excludePathPatterns("/business/hello");
+               .excludePathPatterns("/hello");
 
    }
 }
