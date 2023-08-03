@@ -27,11 +27,14 @@ import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ConfirmOrderService {
@@ -47,8 +50,12 @@ public class ConfirmOrderService {
     private DailyTrainSeatService dailyTrainSeatService;
     @Resource
     private AfterConfirmOrderService afterConfirmOrderService;
+    @Resource
+    private StringRedisTemplate redisTemplate;
 
     public void save(ConfirmOrderDoReq req) {
+
+
         DateTime now = DateTime.now();
         ConfirmOrder confirmOrder = BeanUtil.copyProperties(req, ConfirmOrder.class);
         if (ObjectUtil.isNull(confirmOrder.getId())) {
@@ -90,6 +97,16 @@ public class ConfirmOrderService {
     }
 
     public void doConfirm(ConfirmOrderDoReq req) {
+        String key = req.getDate() + "-" + req.getTrainCode();
+        Boolean setIfAbsent = redisTemplate.opsForValue().setIfAbsent(key, key, 5, TimeUnit.SECONDS);
+        if (setIfAbsent){
+            LOG.info("恭喜抢到锁");
+        }else {
+            LOG.info("很遗憾，没有抢到锁");
+            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_LOCK_FAIL);
+        }
+
+
         // 省略业务数据校验，如：车次是否存在，余票是否存在，车次是否在有效期内，tickets条数>0，同乘客同车次是否已买过
 
         // 保存确认订单表，状态初始

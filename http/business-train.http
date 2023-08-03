@@ -1,6 +1,32 @@
 GET http://localhost:8000/business/admin/train/query-all
 Accept: application/json
+
 ###
 GET http://localhost:8000/business/admin/train/gen-seat/G1
 Accept: application/json
+
 ###
+
+POST http://localhost:8000/business/confirm-order/do
+Content-Type: application/json
+token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE2OTA5NjQxMDcsIm1vYmlsZSI6IjEzMDAwMDAwMDAwIiwiaWQiOjE2ODE5MTU3MTQ0MDUwMTE0NTYsImV4cCI6MTY5MTA1MDUwNywiaWF0IjoxNjkwOTY0MTA3fQ.NKYS-5lt96GApWSxn3iK-2XiCnqWdLqYgG4tGBx747o
+
+{
+  "dailyTrainTicketId": 1685967768614211584,
+  "date": 1690732800000,
+  "end": "济南",
+  "start": "广州",
+  "tickets": [{
+      "passengerId": 1682373427480104960,
+      "passengerIdCard": "3213",
+      "passengerName": "王雨",
+      "passengerType": "1",
+      "seatTypeCode": "1"
+  }],
+  "trainCode": "G1"
+}
+
+###
+
+
+
