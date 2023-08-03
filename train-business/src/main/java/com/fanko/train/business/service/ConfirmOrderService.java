@@ -107,6 +107,7 @@ public class ConfirmOrderService {
     @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
     public void doConfirm(ConfirmOrderDoReq req) {
         String lockKey = req.getDate() + "-" + req.getTrainCode();
+//       setIfAbsent 就是对应redis的setnx
 //        Boolean setIfAbsent = redisTemplate.opsForValue().setIfAbsent(lockKey, lockKey, 5, TimeUnit.SECONDS);
 //        if (Boolean.TRUE.equals(setIfAbsent)) {
 //            LOG.info("恭喜抢到锁");
