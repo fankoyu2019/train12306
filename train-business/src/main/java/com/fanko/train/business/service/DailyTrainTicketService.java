@@ -59,11 +59,13 @@ public class DailyTrainTicketService {
     }
 
     @CachePut(value = "DailyTrainTicketService.queryList")
-    public PageResp<DailyTrainTicketQueryResp> queryList2(DailyTrainTicketQueryReq req){
+    public PageResp<DailyTrainTicketQueryResp> queryList2(DailyTrainTicketQueryReq req) {
         return queryList(req);
-    };
+    }
 
-    @Cacheable(value = "DailyTrainTicketService.queryList")
+    ;
+
+//    @Cacheable(value = "DailyTrainTicketService.queryList")
     public PageResp<DailyTrainTicketQueryResp> queryList(DailyTrainTicketQueryReq req) {
 //        常见缓存过期策略
 //        TTL 超时时间
@@ -78,7 +80,7 @@ public class DailyTrainTicketService {
 //                }else{
 //                    去数据库取数据
 //                }
-
+        LOG.info("req.hasCode = {}", req.hashCode());
         // 可以增加抢锁动作
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         dailyTrainTicketExample.setOrderByClause("id desc");
