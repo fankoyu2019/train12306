@@ -12,6 +12,7 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.fanko.train.business.domain.*;
 import com.fanko.train.business.enums.ConfirmOrderStatusEnum;
+import com.fanko.train.business.enums.RedisKeyPreEnum;
 import com.fanko.train.business.enums.SeatColEnum;
 import com.fanko.train.business.enums.SeatTypeEnum;
 import com.fanko.train.business.req.ConfirmOrderTicketReq;
@@ -27,13 +28,11 @@ import com.fanko.train.business.resp.ConfirmOrderQueryResp;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
-import org.redisson.RedissonRedLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -119,7 +118,7 @@ public class ConfirmOrderService {
         }
 
         // 购票
-        String lockKey = req.getDate() + "-" + req.getTrainCode();
+        String lockKey = RedisKeyPreEnum.CONFIRM_ORDER + "-" + req.getDate() + "-" + req.getTrainCode();
 //       setIfAbsent 就是对应redis的setnx
 //        Boolean setIfAbsent = redisTemplate.opsForValue().setIfAbsent(lockKey, lockKey, 5, TimeUnit.SECONDS);
 //        if (Boolean.TRUE.equals(setIfAbsent)) {
