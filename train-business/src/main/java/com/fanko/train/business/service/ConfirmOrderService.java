@@ -58,8 +58,11 @@ public class ConfirmOrderService {
     private AfterConfirmOrderService afterConfirmOrderService;
     @Autowired
     private StringRedisTemplate redisTemplate;
+
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private SkTokenService skTokenService;
 
     public void save(ConfirmOrderDoReq req) {
 
@@ -104,8 +107,18 @@ public class ConfirmOrderService {
         confirmOrderMapper.deleteByPrimaryKey(id);
     }
 
-    @SentinelResource(value = "doConfirm",blockHandler = "doConfirmBlock")
+    @SentinelResource(value = "doConfirm", blockHandler = "doConfirmBlock")
     public void doConfirm(ConfirmOrderDoReq req) {
+        // 校验令牌余量
+        boolean validSkToken = skTokenService.validSkToken(req.getDate(), req.getTrainCode(), LoginMemberContext.getId());
+        if (validSkToken) {
+            LOG.info("令牌校验通过");
+        } else {
+            LOG.info("令牌校验不通过");
+            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_SK_TOKEN_FAIL);
+        }
+
+        // 购票
         String lockKey = req.getDate() + "-" + req.getTrainCode();
 //       setIfAbsent 就是对应redis的setnx
 //        Boolean setIfAbsent = redisTemplate.opsForValue().setIfAbsent(lockKey, lockKey, 5, TimeUnit.SECONDS);
@@ -433,11 +446,12 @@ public class ConfirmOrderService {
             }
         }
     }
+
     /*
     降级方法，需包含限流方法的所有参数和BlackException参数
     * */
-    public void doConfirmBlock(ConfirmOrderDoReq req, BlockException e){
-        LOG.info("购票请求被限流：{}",req);
+    public void doConfirmBlock(ConfirmOrderDoReq req, BlockException e) {
+        LOG.info("购票请求被限流：{}", req);
         throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_FLOW_EXCEPTION);
     }
 }
