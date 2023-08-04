@@ -53,6 +53,49 @@ public class ConfirmOrderDoReq {
     @NotEmpty(message = "【车票】不能为空")
     private List<ConfirmOrderTicketReq> tickets;
 
+    /*
+    * 验证码
+    * */
+    @NotBlank(message = "【图片验证码】不能为空")
+    private String imageCode;
+
+    /*
+    * 图片验证码Token
+    * */
+    @NotBlank(message = "【图片验证码】参数非法")
+    private String imageCodeToken;
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("ConfirmOrderDoReq{");
+        sb.append("memberId=").append(memberId);
+        sb.append(", date=").append(date);
+        sb.append(", trainCode='").append(trainCode).append('\'');
+        sb.append(", start='").append(start).append('\'');
+        sb.append(", end='").append(end).append('\'');
+        sb.append(", dailyTrainTicketId=").append(dailyTrainTicketId);
+        sb.append(", tickets=").append(tickets);
+        sb.append(", imageCode='").append(imageCode).append('\'');
+        sb.append(", imageCodeToken='").append(imageCodeToken).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public String getImageCode() {
+        return imageCode;
+    }
+
+    public void setImageCode(String imageCode) {
+        this.imageCode = imageCode;
+    }
+
+    public String getImageCodeToken() {
+        return imageCodeToken;
+    }
+
+    public void setImageCodeToken(String imageCodeToken) {
+        this.imageCodeToken = imageCodeToken;
+    }
 
     public Long getMemberId() {
         return memberId;
@@ -111,17 +154,4 @@ public class ConfirmOrderDoReq {
         this.tickets = tickets;
     }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("ConfirmOrderDoReq{");
-        sb.append("memberId=").append(memberId);
-        sb.append(", date=").append(date);
-        sb.append(", trainCode='").append(trainCode).append('\'');
-        sb.append(", start='").append(start).append('\'');
-        sb.append(", end='").append(end).append('\'');
-        sb.append(", dailyTrainTicketId=").append(dailyTrainTicketId);
-        sb.append(", tickets=").append(tickets);
-        sb.append('}');
-        return sb.toString();
-    }
 }

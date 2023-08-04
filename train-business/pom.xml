@@ -36,6 +36,12 @@
             <artifactId>sentinel-datasource-nacos</artifactId>
         </dependency>
 
+        <!--图形验证码-->
+        <dependency>
+            <groupId>com.github.penggle</groupId>
+            <artifactId>kaptcha</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -60,7 +66,6 @@
         </dependency>
 
 
-
         <!--远程调用openfeign-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -72,7 +77,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-loadbalancer</artifactId>
         </dependency>
-
 
 
     </dependencies>
