@@ -45,13 +45,14 @@ public class BeforeConfirmOrderService {
     @Resource
     private RocketMQTemplate rocketMQTemplate;
     @Autowired
-    private RedissonClient redissonClient;
-    @Autowired
     private SkTokenService skTokenService;
-
+    @Resource
+    private ConfirmOrderMapper confirmOrderMapper;
 
     @SentinelResource(value = "beforeDoConfirm", blockHandler = "beforeDoConfirmBlock")
     public void beforeDoConfirm(ConfirmOrderDoReq req) {
+        req.setMemberId(LoginMemberContext.getId());
+
         // 校验令牌余量
         boolean validSkToken = skTokenService.validSkToken(req.getDate(), req.getTrainCode(), LoginMemberContext.getId());
         if (validSkToken) {
@@ -61,36 +62,36 @@ public class BeforeConfirmOrderService {
             throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_SK_TOKEN_FAIL);
         }
 
-        // 获取车次锁
-        String lockKey = RedisKeyPreEnum.CONFIRM_ORDER + "-" + req.getDate() + "-" + req.getTrainCode();
-        RLock lock = null;
-        try {
-            lock = redissonClient.getLock(lockKey);
-            boolean tryLock = lock.tryLock(0, TimeUnit.SECONDS);//带看门狗
-            if (tryLock) {
-                LOG.info("恭喜抢到锁");
-            } else {
-                LOG.info("很遗憾，没有抢到锁");
-                throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_LOCK_FAIL);
-            }
-            // 可以购票 TODO:发送MQ，等待出票
-            LOG.info("准备发送MQ，等待出票");
-            // 发送MQ排队购票
-            String reqJson = JSON.toJSONString(req);
-            LOG.info("排队购票，发送MQ开始，消息:{}",reqJson);
-            rocketMQTemplate.convertAndSend(RocketMQTopicEnum.CONFIRM_ORDER.getCode(), reqJson);
-            LOG.info("排队购票，发送MQ结束");
+        // 保存确认订单表，状态初始
+        DateTime now = DateTime.now();
+        Date date = req.getDate();
+        String trainCode = req.getTrainCode();
+        String start = req.getStart();
+        String end = req.getEnd();
+        List<ConfirmOrderTicketReq> tickets = req.getTickets();
 
-        } catch (InterruptedException e) {
-            LOG.error("购票异常", e);
-        } finally {
-            LOG.info("购票流程结束，释放锁!");
-            // try finally 不能包含加锁的那段代码
-//            redisTemplate.delete(lockKey);
-            if (null != lock && lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+        ConfirmOrder confirmOrder = new ConfirmOrder();
+        confirmOrder.setId(SnowUtil.getSnowflakeNextId());
+        confirmOrder.setMemberId(req.getMemberId());
+        confirmOrder.setDate(date);
+        confirmOrder.setTrainCode(trainCode);
+        confirmOrder.setStart(start);
+        confirmOrder.setEnd(end);
+        confirmOrder.setDailyTrainTicketId(req.getDailyTrainTicketId());
+        confirmOrder.setStatus(ConfirmOrderStatusEnum.INIT.getCode());
+        confirmOrder.setCreateTime(now);
+        confirmOrder.setUpdateTime(now);
+        confirmOrder.setTickets(JSON.toJSONString(tickets));
+        confirmOrderMapper.insert(confirmOrder);
+
+        // 可以购票 TODO:发送MQ，等待出票
+        LOG.info("准备发送MQ，等待出票");
+        // 发送MQ排队购票
+        String reqJson = JSON.toJSONString(req);
+        LOG.info("排队购票，发送MQ开始，消息:{}", reqJson);
+        rocketMQTemplate.convertAndSend(RocketMQTopicEnum.CONFIRM_ORDER.getCode(), reqJson);
+        LOG.info("排队购票，发送MQ结束");
+
 
     }
 
