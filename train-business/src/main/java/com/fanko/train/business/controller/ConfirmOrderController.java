@@ -6,6 +6,7 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.fanko.train.business.req.ConfirmOrderDoReq;
 import com.fanko.train.business.req.ConfirmOrderQueryReq;
 import com.fanko.train.business.resp.ConfirmOrderQueryResp;
+import com.fanko.train.business.service.BeforeConfirmOrderService;
 import com.fanko.train.business.service.ConfirmOrderService;
 import com.fanko.train.common.exception.BusinessException;
 import com.fanko.train.common.exception.BusinessExceptionEnum;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class ConfirmOrderController {
     private static final Logger LOG = LoggerFactory.getLogger(ConfirmOrderController.class);
     @Resource
-    private ConfirmOrderService confirmOrderService;
+    private BeforeConfirmOrderService beforeConfirmOrderService;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -49,7 +50,7 @@ public class ConfirmOrderController {
             //验证通过后,移除验证码
             redisTemplate.delete(imageCodeToken);
         }
-        confirmOrderService.doConfirm(req);
+        beforeConfirmOrderService.beforeDoConfirm(req);
         return new CommonResp<>();
     }
     /*
