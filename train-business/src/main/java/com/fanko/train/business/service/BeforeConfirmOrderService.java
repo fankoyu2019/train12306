@@ -11,10 +11,7 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.fanko.train.business.domain.*;
-import com.fanko.train.business.enums.ConfirmOrderStatusEnum;
-import com.fanko.train.business.enums.RedisKeyPreEnum;
-import com.fanko.train.business.enums.SeatColEnum;
-import com.fanko.train.business.enums.SeatTypeEnum;
+import com.fanko.train.business.enums.*;
 import com.fanko.train.business.mapper.ConfirmOrderMapper;
 import com.fanko.train.business.req.ConfirmOrderDoReq;
 import com.fanko.train.business.req.ConfirmOrderQueryReq;
@@ -28,6 +25,7 @@ import com.fanko.train.common.util.SnowUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import jakarta.annotation.Resource;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -45,17 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class BeforeConfirmOrderService {
     private static final Logger LOG = LoggerFactory.getLogger(BeforeConfirmOrderService.class);
     @Resource
-    private ConfirmOrderMapper confirmOrderMapper;
-
-    @Resource
-    private DailyTrainTicketService dailyTrainTicketService;
-    @Resource
-    private DailyTrainCarriageService dailyTrainCarriageService;
-    @Resource
-    private DailyTrainSeatService dailyTrainSeatService;
-    @Resource
-    private AfterConfirmOrderService afterConfirmOrderService;
-
+    private RocketMQTemplate rocketMQTemplate;
     @Autowired
     private RedissonClient redissonClient;
     @Autowired
@@ -87,7 +75,11 @@ public class BeforeConfirmOrderService {
             }
             // 可以购票 TODO:发送MQ，等待出票
             LOG.info("准备发送MQ，等待出票");
-
+            // 发送MQ排队购票
+            String reqJson = JSON.toJSONString(req);
+            LOG.info("排队购票，发送MQ开始，消息:{}",reqJson);
+            rocketMQTemplate.convertAndSend(RocketMQTopicEnum.CONFIRM_ORDER.getCode(), reqJson);
+            LOG.info("排队购票，发送MQ结束");
 
         } catch (InterruptedException e) {
             LOG.error("购票异常", e);
