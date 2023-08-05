@@ -23,6 +23,7 @@ import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,8 @@ public class SkTokenService {
     private SkTokenMapperCust skTokenMapperCust;
     @Autowired
     private StringRedisTemplate redisTemplate;
-
+    @Value("${spring.profiles.active}")
+    private String env;
 
     public void save(SkTokenSaveReq req) {
         DateTime now = DateTime.now();
@@ -117,15 +119,18 @@ public class SkTokenService {
     /*校验令牌*/
     public boolean validSkToken(Date date, String trainCode, Long memberId) {
         LOG.info(" 会员【{}】获取日期【{}】车次【{}】的令牌开始", memberId, DateUtil.formatDate(date), trainCode);
-        // 先获取令牌锁，再校验令牌余量，防止机器人刷票，lockKey就是令牌，用来表示【谁能做什么】的一个凭证
-        String lockKey = RedisKeyPreEnum.SK_TOKEN + "-" + DateUtil.formatDate(date) + "-" + trainCode + "-" + memberId;
-        Boolean setIfAbsent = redisTemplate.opsForValue().setIfAbsent(lockKey, lockKey, 5, TimeUnit.SECONDS);
-        if (Boolean.TRUE.equals(setIfAbsent)) {
-            LOG.info("恭喜抢到令牌锁");
-        } else {
-            LOG.info("很遗憾，没有抢到令牌锁");
-            return false;
+        if (!env.equals("dev")) {
+            // 先获取令牌锁，再校验令牌余量，防止机器人刷票，lockKey就是令牌，用来表示【谁能做什么】的一个凭证
+            String lockKey = RedisKeyPreEnum.SK_TOKEN + "-" + DateUtil.formatDate(date) + "-" + trainCode + "-" + memberId;
+            Boolean setIfAbsent = redisTemplate.opsForValue().setIfAbsent(lockKey, lockKey, 5, TimeUnit.SECONDS);
+            if (Boolean.TRUE.equals(setIfAbsent)) {
+                LOG.info("恭喜抢到令牌锁");
+            } else {
+                LOG.info("很遗憾，没有抢到令牌锁");
+                return false;
+            }
         }
+
         String skTokenCountKey = RedisKeyPreEnum.SK_TOKEN_COUNT + DateUtil.formatDate(date) + "-" + trainCode;
         Object skTokenCount = redisTemplate.opsForValue().get(skTokenCountKey);
         if (skTokenCount != null) {
@@ -162,9 +167,9 @@ public class SkTokenService {
             // 余数-1
             Integer count = skToken.getCount() - 1;
             skToken.setCount(count);
-            LOG.info("将该车次的令牌大闸放入缓存中，key:{},count：{}",skTokenCountKey, count);
+            LOG.info("将该车次的令牌大闸放入缓存中，key:{},count：{}", skTokenCountKey, count);
             // 不需要更新数据库，放入缓存，在上面统一更新
-            redisTemplate.opsForValue().setIfAbsent(lockKey, String.valueOf(count), 60, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().setIfAbsent(skTokenCountKey, String.valueOf(count), 60, TimeUnit.SECONDS);
 //            skTokenMapper.updateByPrimaryKey(skToken);
             return true;
         }

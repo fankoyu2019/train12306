@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,29 +31,34 @@ public class ConfirmOrderController {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
+    @Value("${spring.profiles.active}")
+    private String env;
+
     @PostMapping("/do")
 //    接口资源名不能与接口路径一致,会导致限流后不走到降级方法中
     @SentinelResource(value = "confirmOrderDo", blockHandler = "doConfirmBlock")
     public CommonResp<Object> doConfirm(@Valid @RequestBody ConfirmOrderDoReq req) {
-
-        //图形验证码校验
-        String imageCodeToken = req.getImageCodeToken();
-        String imageCode = req.getImageCode();
-        String imageCodeRedis = redisTemplate.opsForValue().get(imageCodeToken);
-        LOG.info("从redis中获取到的验证码:{}", imageCodeRedis);
-        if (ObjectUtil.isEmpty(imageCodeRedis)) {
-            return new CommonResp<>(false, "验证码已过期", null);
-        }
-        //验证码校验,大小写忽略,提升体验,比如0o vv Ww容易混
-        if (!imageCodeRedis.equalsIgnoreCase(imageCode)) {
-            return new CommonResp<>(false, "验证码不正确", null);
-        } else {
-            //验证通过后,移除验证码
-            redisTemplate.delete(imageCodeToken);
+        if (!env.equals("dev")) {
+            //图形验证码校验
+            String imageCodeToken = req.getImageCodeToken();
+            String imageCode = req.getImageCode();
+            String imageCodeRedis = redisTemplate.opsForValue().get(imageCodeToken);
+            LOG.info("从redis中获取到的验证码:{}", imageCodeRedis);
+            if (ObjectUtil.isEmpty(imageCodeRedis)) {
+                return new CommonResp<>(false, "验证码已过期", null);
+            }
+            //验证码校验,大小写忽略,提升体验,比如0o vv Ww容易混
+            if (!imageCodeRedis.equalsIgnoreCase(imageCode)) {
+                return new CommonResp<>(false, "验证码不正确", null);
+            } else {
+                //验证通过后,移除验证码
+                redisTemplate.delete(imageCodeToken);
+            }
         }
         beforeConfirmOrderService.beforeDoConfirm(req);
         return new CommonResp<>();
     }
+
     /*
     降级方法,需包含限流方法的所有参数和BlackException参数
     * */
