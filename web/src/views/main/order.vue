@@ -447,7 +447,8 @@ export default defineComponent({
       firstImageCodeSourceA,
       showFirstImageCodeModal,
       loadFirstImageCode,
-      validFirstImageCode
+      validFirstImageCode,
+      firstImageCodeModalVisible
     };
   },
 });
