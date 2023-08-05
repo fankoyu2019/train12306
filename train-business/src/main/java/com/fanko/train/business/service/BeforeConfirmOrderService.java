@@ -30,6 +30,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -86,6 +87,7 @@ public class BeforeConfirmOrderService {
 
         // 可以购票 TODO:发送MQ，等待出票
         LOG.info("准备发送MQ，等待出票");
+        req.setLogId(MDC.get("LOG_ID"));
         // 发送MQ排队购票
         String reqJson = JSON.toJSONString(req);
         LOG.info("排队购票，发送MQ开始，消息:{}", reqJson);
