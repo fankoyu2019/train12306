@@ -28,5 +28,9 @@ token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE2OTA5NjQxMDcsIm1vYmlsZSI6
 
 ###
 
+GET http://localhost:8000/business/confirm-order/query-line-count/1687789881021042688
+Content-Type: application/json
+token: {{token}}
 
+###
 

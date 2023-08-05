@@ -33,7 +33,8 @@ public class ConfirmOrderController {
 
     @Value("${spring.profiles.active}")
     private String env;
-
+    @Resource
+    private ConfirmOrderService confirmOrderService;
     @PostMapping("/do")
 //    接口资源名不能与接口路径一致,会导致限流后不走到降级方法中
     @SentinelResource(value = "confirmOrderDo", blockHandler = "doConfirmBlock")
@@ -55,8 +56,14 @@ public class ConfirmOrderController {
                 redisTemplate.delete(imageCodeToken);
             }
         }
-        beforeConfirmOrderService.beforeDoConfirm(req);
-        return new CommonResp<>();
+        Long id = beforeConfirmOrderService.beforeDoConfirm(req);
+        return new CommonResp<>(String.valueOf(id));
+    }
+
+    @GetMapping("/query-line-count/{id}")
+    public CommonResp<Integer> queryLineCount(@PathVariable Long id){
+        Integer count = confirmOrderService.queryLineCount(id);
+        return new CommonResp<>(count);
     }
 
     /*
