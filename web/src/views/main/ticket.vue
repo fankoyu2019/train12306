@@ -16,9 +16,22 @@
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
         <a-space>
-        <a-button type="primary" @click="toOrder(record)">预订</a-button>
-        <a-button type="primary" @click="showStation(record)">途径车站</a-button>
-      </a-space>
+          <a-button type="primary" @click="toOrder(record)">预订</a-button>
+          <router-link :to="{
+            path:'/seat',
+            query:{
+              date:record.date,
+              trainCode: record.trainCode,
+              start: record.start,
+              startIndex: record.startIndex,
+              end: record.end,
+              endIndex: record.endIndex,
+            }
+          }">
+            <a-button type="primary">座位销售图</a-button>
+          </router-link>
+          <a-button type="primary" @click="showStation(record)">途径车站</a-button>
+        </a-space>
       </template>
       <template v-if="column.dataIndex === 'station'">
         {{ record.start }} <br/>
@@ -84,17 +97,17 @@
       <a-table-column key="name" title="站名" data-index="name"/>
       <a-table-column key="inTime" title="进站时间" data-index="inTime">
         <template #default="{record}">
-          {{record.index === 0  ? '-' : record.inTime }}
+          {{ record.index === 0 ? '-' : record.inTime }}
         </template>
       </a-table-column>
       <a-table-column key="outTime" title="出站时间" data-index="outTime">
         <template #default="{record}">
-          {{record.index === stations.length - 1  ? '-' : record.outTime }}
+          {{ record.index === stations.length - 1 ? '-' : record.outTime }}
         </template>
       </a-table-column>
       <a-table-column key="stopTime" title="停站时长" data-index="stopTime">
         <template #default="{record}">
-          {{record.index === 0 || record.index === stations.length - 1 ? '-' : record.stopTime }}
+          {{ record.index === 0 || record.index === stations.length - 1 ? '-' : record.stopTime }}
         </template>
       </a-table-column>
     </a-table>
@@ -259,34 +272,34 @@ export default defineComponent({
       return dayjs('00:00:00', 'HH:mm:ss').second(diff).format('HH:mm:ss');
 
     };
-    const toOrder = (record) =>{
+    const toOrder = (record) => {
       dailyTrainTicket.value = Tool.copy(record);
-      SessionStorage.set(SESSION_ORDER,dailyTrainTicket.value);
+      SessionStorage.set(SESSION_ORDER, dailyTrainTicket.value);
       router.push("/order");
     };
 
     // ------------途径车站---------------
     const stations = ref([]);
-    const showStation = record =>{
+    const showStation = record => {
       visible.value = true;
-      axios.get("/business/daily-train-station/query-by-train-code",{
-        params:{
-          date:record.date,
-          trainCode:record.trainCode,
+      axios.get("/business/daily-train-station/query-by-train-code", {
+        params: {
+          date: record.date,
+          trainCode: record.trainCode,
         }
       }).then((response) => {
         let data = response.data;
         if (data.success) {
-          stations.value=data.content;
-        }else {
-          notification.error({description:data.message});
+          stations.value = data.content;
+        } else {
+          notification.error({description: data.message});
         }
       });
     };
 
     onMounted(() => {
       params.value = SessionStorage.get(SESSION_TICKET_PARAMS) || {};
-      if (Tool.isNotEmpty(params.value)){
+      if (Tool.isNotEmpty(params.value)) {
         handleQuery({
           page: 1,
           size: pagination.value.pageSize
