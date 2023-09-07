@@ -70,6 +70,19 @@ public class ConfirmOrderDoReq {
     * */
     private String logId;
 
+    /*
+    * 加入排队人数
+    * */
+    private int lineNumber;
+
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("ConfirmOrderDoReq{");

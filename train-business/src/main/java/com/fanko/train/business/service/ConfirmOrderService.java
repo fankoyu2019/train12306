@@ -224,7 +224,7 @@ public class ConfirmOrderService {
     public void updateStatus(ConfirmOrder confirmOrder) {
         ConfirmOrder confirmOrderForUpdate = new ConfirmOrder();
         confirmOrderForUpdate.setId(confirmOrder.getId());
-        confirmOrderForUpdate.setDate(new Date());
+        confirmOrderForUpdate.setUpdateTime(new Date());
         confirmOrderForUpdate.setStatus(confirmOrder.getStatus());
         confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
     }
@@ -234,11 +234,11 @@ public class ConfirmOrderService {
      * */
     private void sell(ConfirmOrder confirmOrder) {
         // 为了演示排队效果，每次出票增加1000ms延时
-//        try {
-//            Thread.sleep(1000);
-//        }catch (InterruptedException e){
-//            throw new RuntimeException(e);
-//        }
+        try {
+            Thread.sleep(1000);
+        }catch (InterruptedException e){
+            throw new RuntimeException(e);
+        }
 
         // 构造ConfirmOrderDoReq
         ConfirmOrderDoReq req = new ConfirmOrderDoReq();
@@ -540,5 +540,18 @@ public class ConfirmOrderService {
         }else {
             return result;
         }
+    }
+
+    /*
+     * 取消排队，只有I状态才能取消排队，所以按状态更新
+     * */
+    public Integer cancel(Long id){
+        ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
+        confirmOrderExample.createCriteria()
+                .andIdEqualTo(id)
+                .andStatusEqualTo(ConfirmOrderStatusEnum.INIT.getCode());
+        ConfirmOrder confirmOrder = new ConfirmOrder();
+        confirmOrder.setStatus(ConfirmOrderStatusEnum.CANCEL.getCode());
+        return confirmOrderMapper.updateByExampleSelective(confirmOrder, confirmOrderExample);
     }
 }
