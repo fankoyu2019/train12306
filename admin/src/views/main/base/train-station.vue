@@ -32,6 +32,7 @@
       </a-form-item>
       <a-form-item label="站序">
         <a-input v-model:value="trainStation.index"/>
+        <span style="color: red">重要：第1站是0，对显示销售图有影响</span>
       </a-form-item>
       <a-form-item label="站名">
         <station-select-view v-model="trainStation.name"></station-select-view>
