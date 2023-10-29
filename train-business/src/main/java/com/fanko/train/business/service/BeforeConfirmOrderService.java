@@ -59,7 +59,7 @@ public class BeforeConfirmOrderService {
 
 
             req.setMemberId(LoginMemberContext.getId());
-
+            // 500 10W ->redis->token:2000  -> mysql
             // 校验令牌余量
             boolean validSkToken = skTokenService.validSkToken(req.getDate(), req.getTrainCode(), LoginMemberContext.getId());
             if (validSkToken) {
@@ -68,6 +68,7 @@ public class BeforeConfirmOrderService {
                 LOG.info("令牌校验不通过");
                 throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_SK_TOKEN_FAIL);
             }
+
 
             // 保存确认订单表，状态初始
             DateTime now = DateTime.now();

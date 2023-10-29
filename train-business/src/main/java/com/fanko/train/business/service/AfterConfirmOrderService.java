@@ -85,10 +85,10 @@ public class AfterConfirmOrderService {
             // 影响：XXX11111X
 //            Integer startIndex = 4;
 //            Integer endIndex = 7;
-//            Integer minStartIndex = startIndex - 往前碰到的最后一个0;
+//            Integer minStartIndex = startIndex - 往前碰到的第一个1;
 //            Integer maxStartIndex = endIndex - 1;
 //            Integer minEndIndex = startIndex + 1;
-//            Integer maxEndIndex = endIndex + 往后碰到的第一个0;
+//            Integer maxEndIndex = endIndex + 往后碰到的第一个1;
             Integer startIndex = dailyTrainTicket.getStartIndex();
             Integer endIndex = dailyTrainTicket.getEndIndex();
             char[] chars = seatForUpdate.getSell().toCharArray();

@@ -68,7 +68,6 @@ public class ConfirmOrderService {
 
     public void save(ConfirmOrderDoReq req) {
 
-
         DateTime now = DateTime.now();
         ConfirmOrder confirmOrder = BeanUtil.copyProperties(req, ConfirmOrder.class);
         if (ObjectUtil.isNull(confirmOrder.getId())) {
@@ -121,6 +120,7 @@ public class ConfirmOrderService {
 //            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_SK_TOKEN_FAIL);
 //        }
 //
+        //Rocket G1
         // 获取分布式锁
         String lockKey = RedisKeyPreEnum.CONFIRM_ORDER + "-" + dto.getDate() + "-" + dto.getTrainCode();
 ////       setIfAbsent 就是对应redis的setnx
@@ -425,6 +425,7 @@ public class ConfirmOrderService {
 
     /*
     计算某座位在区间内是否可卖
+    11001
     例：sell=10001，本次购买区间站1~4,则区间已售000
     全部是0，表示区间可买：只要有1，就表示区间内已售过票
     *
