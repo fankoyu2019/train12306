@@ -7,7 +7,10 @@ public enum ConfirmOrderStatusEnum {
     SUCCESS("S", "成功"),
     FAILURE("F", "失败"),
     EMPTY("E", "无票"),
-    CANCEL("C", "取消");
+    CANCEL("C", "取消"),
+    WAITPAYMENT("W", "未付款"),
+    PAYMENT("PM","已付款");
+
 
     private String code;
 

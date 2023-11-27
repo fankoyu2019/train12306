@@ -329,6 +329,7 @@ public class ConfirmOrderService {
             LOG.error("保存购票信息失败", e);
             throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_EXCEPTION);
         }
+
     }
 
     /*
@@ -524,7 +525,7 @@ public class ConfirmOrderService {
             case FAILURE -> -2;
             case EMPTY -> -3;
             case CANCEL -> -4;
-            case INIT -> 999;
+            case INIT, WAITPAYMENT, PAYMENT -> 999;
         };
         if (result == 999){
             // 排在第几位

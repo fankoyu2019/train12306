@@ -11,4 +11,13 @@ public interface DailyTrainTicketMapperCust {
             Integer maxStartIndex,
             Integer minEndIndex,
             Integer maxEndIndex);
+    void updateCountByDelay(
+            Date date,
+            String trainCode,
+            String seatTypeCode,
+            Integer minStartIndex,
+            Integer maxStartIndex,
+            Integer minEndIndex,
+            Integer maxEndIndex
+    );
 }

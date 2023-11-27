@@ -9,7 +9,9 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.fanko.train.business.domain.*;
+import com.fanko.train.business.dto.ConfirmOrderDelayMQDto;
 import com.fanko.train.business.enums.ConfirmOrderStatusEnum;
+import com.fanko.train.business.enums.RocketMQTopicEnum;
 import com.fanko.train.business.enums.SeatColEnum;
 import com.fanko.train.business.enums.SeatTypeEnum;
 import com.fanko.train.business.feign.MemberFeign;
@@ -32,11 +34,14 @@ import com.github.pagehelper.PageInfo;
 //import io.seata.core.context.RootContext;
 //import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,13 +57,15 @@ public class AfterConfirmOrderService {
     private MemberFeign memberFeign;
     @Resource
     private ConfirmOrderMapper confirmOrderMapper;
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
 
     /*
       选中座位后事务处理：
       座位表修改售卖情况sell；
       余票详情表修改余票；
       为会员增加购票记录
-      更新确认订单为成功
+      更新确认订单为出票成功，未付款
     * */
 //    @Transactional
 //    @GlobalTransactional
@@ -67,6 +74,15 @@ public class AfterConfirmOrderService {
                                List<ConfirmOrderTicketReq> tickets,
                                ConfirmOrder confirmOrder) throws Exception {
 //        LOG.info("seata全局事务ID：{}", RootContext.getXID());
+//        BigDecimal sumPrice =new BigDecimal("0");
+        ConfirmOrderDelayMQDto confirmOrderDelayMQDto = new ConfirmOrderDelayMQDto();
+        List<Long> seatIdList = new ArrayList<>();
+        List<Integer> minStartIndexList = new ArrayList<>();
+        List<Integer> maxStartIndexList = new ArrayList<>();
+        List<Integer> minEndIndexList = new ArrayList<>();
+        List<Integer> maxEndIndexList = new ArrayList<>();
+        List<String> sellList = new ArrayList<>();
+        String seatType = null;
         for (int j = 0; j < finalSeatList.size(); j++) {
             DailyTrainSeat dailyTrainSeat = finalSeatList.get(j);
             DailyTrainSeat seatForUpdate = new DailyTrainSeat();
@@ -74,6 +90,16 @@ public class AfterConfirmOrderService {
             seatForUpdate.setSell(dailyTrainSeat.getSell());
             seatForUpdate.setUpdateTime(new Date());
             dailyTrainSeatMapper.updateByPrimaryKeySelective(seatForUpdate);
+            // 计算总待支付票价
+            seatType = dailyTrainSeat.getSeatType();
+
+//            switch (seatType) {
+//                case "1" -> sumPrice = sumPrice.add(dailyTrainTicket.getYdzPrice());
+//                case "2" -> sumPrice = sumPrice.add(dailyTrainTicket.getEdzPrice());
+//                case "3" -> sumPrice = sumPrice.add(dailyTrainTicket.getRwPrice());
+//                case "4" -> sumPrice = sumPrice.add(dailyTrainTicket.getYwPrice());
+//            }
+
 
             // 计算这个站卖出去后，影响了哪些站的余票库存
             // 参照2~3节 如何保证不超卖、不少卖，还要承受极高的并发 10：30左右
@@ -116,15 +142,22 @@ public class AfterConfirmOrderService {
             dailyTrainTicketMapperCust.updateCountBySell(
                     dailyTrainSeat.getDate(),
                     dailyTrainSeat.getTrainCode(),
-                    dailyTrainSeat.getSeatType(),
+                    seatType,
                     minStartIndex,
                     maxStartIndex,
                     minEndIndex,
                     maxEndIndex
             );
-            // 调用会员服务接口，为会员增加一张车票
-            DateTime now = DateTime.now();
+            sellList.add(dailyTrainSeat.getSell());
+            seatIdList.add(dailyTrainSeat.getId());
+            minStartIndexList.add(minStartIndex);
+            maxStartIndexList.add(maxStartIndex);
+            minEndIndexList.add(minEndIndex);
+            maxEndIndexList.add(maxEndIndex);
 
+
+            // TODO: 调用会员服务接口，为会员增加一张车票
+            DateTime now = DateTime.now();
             MemberTicketReq memberTicketReq = new MemberTicketReq();
             memberTicketReq.setMemberId(confirmOrder.getMemberId());
             memberTicketReq.setPassengerId(tickets.get(j).getPassengerId());
@@ -138,25 +171,45 @@ public class AfterConfirmOrderService {
             memberTicketReq.setStartTime(dailyTrainTicket.getStartTime());
             memberTicketReq.setEndStation(dailyTrainTicket.getEnd());
             memberTicketReq.setEndTime(dailyTrainTicket.getEndTime());
-            memberTicketReq.setSeatType(dailyTrainSeat.getSeatType());
+            memberTicketReq.setSeatType(seatType);
             memberTicketReq.setCreateTime(now);
             memberTicketReq.setUpdateTime(now);
             CommonResp<Object> save = memberFeign.save(memberTicketReq);
-            LOG.info("通用member接口，返回：{}",save);
+            LOG.info("通用member接口，返回：{}", save);
+        }
+        // 订单状态为未付款
 
+        // 更新订单状态为成功，未付款
+        ConfirmOrder confirmOrderForUpdate = new ConfirmOrder();
+        confirmOrderForUpdate.setId(confirmOrder.getId());
+        confirmOrderForUpdate.setUpdateTime(new Date());
+        confirmOrderForUpdate.setStatus(ConfirmOrderStatusEnum.WAITPAYMENT.getCode());
+        confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
 
-            // 更新订单状态为成功
-            ConfirmOrder confirmOrderForUpdate  = new ConfirmOrder();
-            confirmOrderForUpdate.setId(confirmOrder.getId());
-            confirmOrderForUpdate.setUpdateTime(new Date());
-            confirmOrderForUpdate.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
-            confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
+        // 往confirmOrderDelayMQDto中添加必要信息
+        confirmOrderDelayMQDto.setId(confirmOrder.getId());
+        confirmOrderDelayMQDto.setDate(dailyTrainTicket.getDate());
+        confirmOrderDelayMQDto.setTrainCode(dailyTrainTicket.getTrainCode());
+        confirmOrderDelayMQDto.setSeatType(seatType);
+        confirmOrderDelayMQDto.setSeatId(seatIdList);
+        confirmOrderDelayMQDto.setSell(sellList);
+
+        confirmOrderDelayMQDto.setStartIndex(dailyTrainTicket.getStartIndex());
+        confirmOrderDelayMQDto.setEndIndex(dailyTrainTicket.getEndIndex());
+        confirmOrderDelayMQDto.setMinStartIndex(minStartIndexList);
+        confirmOrderDelayMQDto.setMaxStartIndex(maxStartIndexList);
+        confirmOrderDelayMQDto.setMinEndIndex(minEndIndexList);
+        confirmOrderDelayMQDto.setMaxEndIndex(maxEndIndexList);
+        // 发送订单id到RocketMQ延迟队列，倒计时5min
+        rocketMQTemplate.syncSend(RocketMQTopicEnum.TICKET_DELAY.getCode(),
+                MessageBuilder.withPayload(confirmOrderDelayMQDto).build(), 3000, 9);
+
 //
 //            if (1==1){
 //                throw new Exception("测试异常");
 //            }
 
-        }
+
     }
 
 }

@@ -1,7 +1,8 @@
 package com.fanko.train.business.enums;
 
 public enum RocketMQTopicEnum {
-    CONFIRM_ORDER("CONFIRM_ORDER","确认订单排队");
+    CONFIRM_ORDER("CONFIRM_ORDER","确认订单排队"),
+    TICKET_DELAY("TICKET_DELAY","车票付款倒计时延迟队列");
     private final String code;
 
     private final String desc;
